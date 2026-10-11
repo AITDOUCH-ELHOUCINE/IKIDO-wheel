@@ -1,0 +1,90 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  APP_NAME: ikido-wheel
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
+          NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION: ${{ vars.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }}
+          NEXT_TELEMETRY_DISABLED: 1
+
+      - name: Package standalone release
+        if: github.event_name != 'pull_request'
+        run: |
+          mkdir -p release/.next
+          cp -r .next/standalone/. release/
+          cp -r .next/static release/.next/static
+          if [ -d public ]; then cp -r public release/public; fi
+          tar -czf release.tgz -C release .
+
+      - uses: actions/upload-artifact@v4
+        if: github.event_name != 'pull_request'
+        with:
+          name: release
+          path: release.tgz
+          retention-days: 7
+
+  deploy:
+    needs: build
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    env:
+      SSH_PORT: ${{ secrets.VPS_PORT || '22' }}
+      APP_PORT: ${{ vars.APP_PORT || '3000' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: deploy
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: release
+
+      - name: Set up SSH
+        env:
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+          ssh-keyscan -p "$SSH_PORT" -H "$VPS_HOST" >> ~/.ssh/known_hosts
+
+      - name: Upload release
+        env:
+          TARGET: ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}
+        run: |
+          scp -i ~/.ssh/id_deploy -P "$SSH_PORT" release.tgz "$TARGET:/tmp/$APP_NAME-$GITHUB_SHA.tgz"
+
+      - name: Activate release
+        env:
+          TARGET: ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}
+        run: |
+          ssh -i ~/.ssh/id_deploy -p "$SSH_PORT" "$TARGET" \
+            "SHA=$GITHUB_SHA PORT=$APP_PORT APP_NAME=$APP_NAME bash -s" < deploy/remote-deploy.sh

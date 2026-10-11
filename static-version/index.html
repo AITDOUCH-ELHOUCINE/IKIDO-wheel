@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IKIDO Wheel – Random name picker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-6 -6 112 112'%3E%3Crect x='-6' y='-6' width='112' height='112' rx='18' fill='%23fff'/%3E%3Cpath d='M0 0h30L0 30zM0 44 30 14v52L4 100H0z' fill='%2316191d'/%3E%3Cpath d='M30 66 96 0H66L30 36zM48 58l42 42H60L33 73z' fill='%2314b8b3'/%3E%3C/svg%3E">
+</head>
+<body data-theme="dark">
+  <!-- ========== TOP BAR ========== -->
+  <header class="topbar">
+    <a class="brand" href="#" id="brand">
+      <svg class="kmark" viewBox="0 0 100 100" aria-hidden="true"><path class="k-dark" d="M0 0h30L0 30zM0 44 30 14v52L4 100H0z"/><path class="k-teal" d="M30 66 96 0H66L30 36zM48 58l42 42H60L33 73z"/></svg>
+      <span class="brand-text"><b>IKIDO</b><small>wheel</small></span>
+    </a>
+    <button class="menu-toggle" id="menuToggle" aria-label="Menu">
+      <svg viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </button>
+    <nav class="menu" id="menu">
+      <button data-action="customize"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0 0 18c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm3-4a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm3 4a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/></svg>Customize</button>
+      <button data-action="new"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 7V3.5L18.5 9H13z"/></svg>New</button>
+      <button data-action="open"><svg viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2z"/></svg>Open</button>
+      <button data-action="save"><svg viewBox="0 0 24 24"><path d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-4-4zm-5 16a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm3-10H5V5h10v4z"/></svg>Save</button>
+      <button data-action="share"><svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11A2.99 2.99 0 1 0 15 5c0 .24.04.47.09.7L8.04 9.81a3 3 0 1 0 0 4.38l7.12 4.16c-.05.21-.08.43-.08.65A2.92 2.92 0 1 0 18 16.08z"/></svg>Share</button>
+      <button data-action="fullscreen" title="Fullscreen"><svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg><span class="label-sm">Fullscreen</span></button>
+      <div class="dropdown">
+        <button data-action="more">More<svg class="caret" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></button>
+        <div class="dropdown-menu" id="moreMenu">
+          <button data-action="theme">🌓 Toggle dark / light</button>
+          <button data-action="clear-results">🧹 Clear results</button>
+          <button data-action="reset-settings">↺ Reset settings</button>
+          <button data-action="about">ℹ️ About</button>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ========== MAIN ========== -->
+  <main class="stage" id="stage">
+    <div class="bg-glow"></div>
+
+    <section class="wheel-area" id="wheelArea">
+      <button class="round-btn edit-btn" id="editTitleBtn" title="Edit title">
+        <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+      </button>
+      <div class="wheel-title" id="wheelTitle"></div>
+      <div class="wheel-wrap" id="wheelWrap">
+        <canvas id="wheel"></canvas>
+        <div class="spin-hint" id="spinHint">
+          <div class="big">Tap to spin</div>
+          <div class="small">Ctrl + Enter works too</div>
+        </div>
+      </div>
+    </section>
+
+    <button class="round-btn panel-toggle" id="panelToggle" title="Hide / show">
+      <svg viewBox="0 0 24 24"><path d="M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+    </button>
+
+    <aside class="panel" id="panel">
+      <div class="tabs">
+        <button class="tab active" data-tab="entries">Entries <span class="badge" id="entriesCount">0</span></button>
+        <button class="tab" data-tab="results">Results <span class="badge" id="resultsCount">0</span></button>
+      </div>
+
+      <div class="tab-body" id="tab-entries">
+        <div class="toolbar">
+          <button class="btn" id="shuffleBtn"><svg viewBox="0 0 24 24"><path d="M10.59 9.17 5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>Shuffle</button>
+          <button class="btn" id="sortBtn"><svg viewBox="0 0 24 24"><path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/></svg>Sort</button>
+          <div class="split">
+            <button class="btn" id="addImageBtn"><svg viewBox="0 0 24 24"><path d="M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2zM8.5 13.5l2.5 3 3.5-4.5 4.5 6H5l3.5-4.5z"/></svg>Add image</button>
+            <button class="btn caret-btn" id="imageMenuBtn"><svg class="caret" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></button>
+            <div class="dropdown-menu" id="imageMenu">
+              <button id="imgCenter">Center image</button>
+              <button id="imgRemove">Remove center image</button>
+            </div>
+          </div>
+          <input type="file" id="imageInput" accept="image/*" hidden>
+        </div>
+        <label class="check"><input type="checkbox" id="advancedChk"> Advanced</label>
+
+        <textarea id="entriesText" spellcheck="false" placeholder="Enter one name per line"></textarea>
+
+        <div class="adv-list" id="advList" hidden></div>
+        <div class="adv-add" id="advAdd" hidden>
+          <input type="text" id="advInput" placeholder="Add an entry…">
+          <button class="btn" id="advAddBtn">Add</button>
+        </div>
+      </div>
+
+      <div class="tab-body" id="tab-results" hidden>
+        <div class="toolbar">
+          <button class="btn" id="sortResultsBtn"><svg viewBox="0 0 24 24"><path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/></svg>Sort</button>
+          <button class="btn" id="clearResultsBtn"><svg viewBox="0 0 24 24"><path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>Clear</button>
+        </div>
+        <ol class="results" id="resultsList"></ol>
+        <p class="empty" id="resultsEmpty">No results yet. Spin the wheel!</p>
+      </div>
+
+      <div class="panel-foot">
+        <span>Made with ❤️</span>
+        <a href="#" data-action="about">About</a>
+      </div>
+    </aside>
+  </main>
+
+  <canvas id="confetti"></canvas>
+
+  <!-- ========== WINNER DIALOG ========== -->
+  <div class="modal" id="winnerModal" hidden>
+    <div class="dialog winner">
+      <div class="dialog-head" id="winnerHead">And the winner is…</div>
+      <div class="winner-name" id="winnerName"></div>
+      <div class="dialog-foot">
+        <button class="btn-text" id="winnerClose">Close</button>
+        <button class="btn-primary" id="winnerRemove">Remove</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== CUSTOMIZE ========== -->
+  <div class="modal" id="customizeModal" hidden>
+    <div class="dialog wide">
+      <div class="dialog-head plain">Customize</div>
+      <div class="ctabs">
+        <button class="ctab active" data-ctab="during">During spin</button>
+        <button class="ctab" data-ctab="after">After spin</button>
+        <button class="ctab" data-ctab="appearance">Appearance</button>
+      </div>
+      <div class="dialog-body">
+        <div class="cpane" id="c-during">
+          <label class="field">Sound
+            <select id="setTickSound">
+              <option value="tick">Ticking sound</option>
+              <option value="soft">Soft ticking</option>
+              <option value="none">No sound</option>
+            </select>
+          </label>
+          <label class="field">Volume <span class="val" id="volumeVal"></span>
+            <input type="range" id="setVolume" min="0" max="100">
+          </label>
+          <label class="field">Spin time (seconds) <span class="val" id="spinTimeVal"></span>
+            <input type="range" id="setSpinTime" min="1" max="60">
+          </label>
+          <label class="field">Max number of names visible on the wheel <span class="val" id="maxNamesVal"></span>
+            <input type="range" id="setMaxNames" min="4" max="1000">
+          </label>
+        </div>
+        <div class="cpane" id="c-after" hidden>
+          <label class="field">Sound
+            <select id="setWinSound">
+              <option value="applause">Small crowd applause</option>
+              <option value="fanfare">Fanfare</option>
+              <option value="both">Fanfare + applause</option>
+              <option value="none">No sound</option>
+            </select>
+          </label>
+          <label class="check"><input type="checkbox" id="setConfetti"> Launch confetti</label>
+          <label class="check"><input type="checkbox" id="setPopup"> Display popup with message</label>
+          <label class="field">Popup message
+            <input type="text" id="setMessage" maxlength="60">
+          </label>
+          <label class="check"><input type="checkbox" id="setRemoveBtn"> Display the "Remove" button</label>
+          <label class="check"><input type="checkbox" id="setAutoRemove"> Auto-remove winner after 5 seconds</label>
+        </div>
+        <div class="cpane" id="c-appearance" hidden>
+          <div class="field">Color theme</div>
+          <div class="palettes" id="palettes"></div>
+          <label class="check"><input type="checkbox" id="setShadow"> Drop shadow</label>
+          <label class="check"><input type="checkbox" id="setIdle"> Slowly rotate wheel when idle</label>
+          <label class="check"><input type="checkbox" id="setBg"> Animated background glow</label>
+        </div>
+      </div>
+      <div class="dialog-foot">
+        <button class="btn-text" data-close>Cancel</button>
+        <button class="btn-primary" id="customizeOk">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== OPEN ========== -->
+  <div class="modal" id="openModal" hidden>
+    <div class="dialog wide">
+      <div class="dialog-head plain">Open a saved wheel</div>
+      <div class="dialog-body">
+        <ul class="saved-list" id="savedList"></ul>
+        <p class="empty" id="savedEmpty">You have no saved wheels yet.</p>
+      </div>
+      <div class="dialog-foot">
+        <button class="btn-text" data-close>Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== SAVE ========== -->
+  <div class="modal" id="saveModal" hidden>
+    <div class="dialog">
+      <div class="dialog-head plain">Save wheel</div>
+      <div class="dialog-body">
+        <label class="field">Name
+          <input type="text" id="saveName" maxlength="60">
+        </label>
+      </div>
+      <div class="dialog-foot">
+        <button class="btn-text" data-close>Cancel</button>
+        <button class="btn-primary" id="saveOk">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== EDIT TITLE ========== -->
+  <div class="modal" id="titleModal" hidden>
+    <div class="dialog">
+      <div class="dialog-head plain">Title and description</div>
+      <div class="dialog-body">
+        <label class="field">Title
+          <input type="text" id="titleInput" maxlength="60">
+        </label>
+        <label class="field">Description
+          <textarea id="descInput" rows="3" maxlength="300"></textarea>
+        </label>
+      </div>
+      <div class="dialog-foot">
+        <button class="btn-text" data-close>Cancel</button>
+        <button class="btn-primary" id="titleOk">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== ABOUT ========== -->
+  <div class="modal" id="aboutModal" hidden>
+    <div class="dialog">
+      <div class="dialog-head plain">About IKIDO Wheel</div>
+      <div class="dialog-body">
+        <p>Enter names in the panel, click the wheel and let it pick a random winner.</p>
+        <p class="muted">Shortcuts: <kbd>Ctrl</kbd> + <kbd>Enter</kbd> to spin, <kbd>Esc</kbd> to close dialogs.</p>
+        <p class="muted">Your wheel is stored locally in your browser.</p>
+      </div>
+      <div class="dialog-foot">
+        <button class="btn-primary" data-close>OK</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
