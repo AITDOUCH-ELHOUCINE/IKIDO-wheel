@@ -148,6 +148,7 @@ export default function WheelApp() {
             <div className="cpane" id="c-after" hidden>
               <label className="field">Sound
                 <select id="setWinSound">
+                  <option value="chime">Celebration chime</option>
                   <option value="applause">Small crowd applause</option>
                   <option value="fanfare">Fanfare</option>
                   <option value="both">Fanfare + applause</option>
