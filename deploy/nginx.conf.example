@@ -1,9 +1,9 @@
 # /etc/nginx/sites-available/ikido-wheel  (then: ln -s ../sites-available/ikido-wheel /etc/nginx/sites-enabled/)
-# Replace your-domain.com, then: sudo nginx -t && sudo systemctl reload nginx
-# HTTPS: sudo certbot --nginx -d your-domain.com
+# Then: sudo nginx -t && sudo systemctl reload nginx
+# HTTPS: sudo certbot --nginx -d ikidowheel.urbainwat.com
 server {
     listen 80;
-    server_name your-domain.com;
+    server_name ikidowheel.urbainwat.com;
 
     location / {
         proxy_pass http://127.0.0.1:3000;

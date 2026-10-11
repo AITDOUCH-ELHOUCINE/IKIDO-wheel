@@ -72,8 +72,14 @@ jobs:
           VPS_HOST: ${{ secrets.VPS_HOST }}
         run: |
           mkdir -p ~/.ssh
-          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/id_deploy
+          printf '%s\n' "$VPS_SSH_KEY" | tr -d '\r' > ~/.ssh/id_deploy
           chmod 600 ~/.ssh/id_deploy
+          if ! ssh-keygen -y -f ~/.ssh/id_deploy > ~/.ssh/id_deploy.pub 2>/dev/null; then
+            echo "::error::VPS_SSH_KEY is not a valid private key (paste the whole file, from -----BEGIN ... to -----END ..., not a password or a .pub key)."
+            exit 1
+          fi
+          echo "Deploy key fingerprint (must be in ~/.ssh/authorized_keys on the VPS):"
+          ssh-keygen -lf ~/.ssh/id_deploy.pub
           ssh-keyscan -p "$SSH_PORT" -H "$VPS_HOST" >> ~/.ssh/known_hosts
 
       - name: Upload release
