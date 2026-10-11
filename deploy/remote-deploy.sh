@@ -52,5 +52,43 @@ for i in $(seq 1 20); do
   sleep 1
 done
 
+# Start pm2 (and the app) again after a reboot
+if [ "$(id -u)" = 0 ] && [ ! -f /etc/systemd/system/pm2-root.service ]; then
+  pm2 startup systemd -u root --hp /root >/dev/null && pm2 save
+  echo "pm2 will start on boot"
+fi
+
+# Nginx reverse proxy for $DOMAIN (only our own site file is touched)
+if [ -n "${DOMAIN:-}" ] && [ "$(id -u)" = 0 ] && command -v nginx >/dev/null 2>&1; then
+  SITE=/etc/nginx/sites-available/$APP_NAME
+  if [ ! -f "$SITE" ]; then
+    echo "Configuring nginx for $DOMAIN"
+    cat > "$SITE" <<EOF
+server {
+    listen 80;
+    server_name $DOMAIN;
+
+    location / {
+        proxy_pass http://127.0.0.1:$PORT;
+        proxy_http_version 1.1;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+    }
+}
+EOF
+    ln -sf "$SITE" "/etc/nginx/sites-enabled/$APP_NAME"
+    if nginx -t 2>/dev/null; then
+      systemctl reload nginx
+      echo "nginx: http://$DOMAIN -> 127.0.0.1:$PORT"
+    else
+      echo "::warning::nginx config test failed, removing $SITE"
+      nginx -t || true
+      rm -f "$SITE" "/etc/nginx/sites-enabled/$APP_NAME"
+    fi
+  fi
+fi
+
 # Keep the 5 most recent releases
 ls -1dt "$BASE"/releases/* | tail -n +6 | xargs -r rm -rf

@@ -57,6 +57,7 @@ jobs:
     env:
       SSH_PORT: ${{ secrets.VPS_PORT || '22' }}
       APP_PORT: ${{ vars.APP_PORT || '3000' }}
+      SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -92,5 +93,6 @@ jobs:
         env:
           TARGET: ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}
         run: |
+          DOMAIN=$(printf '%s' "$SITE_URL" | sed -E 's#^https?://##; s#[/:].*$##')
           ssh -i ~/.ssh/id_deploy -p "$SSH_PORT" "$TARGET" \
-            "SHA=$GITHUB_SHA PORT=$APP_PORT APP_NAME=$APP_NAME bash -s" < deploy/remote-deploy.sh
+            "SHA=$GITHUB_SHA PORT=$APP_PORT APP_NAME=$APP_NAME DOMAIN=$DOMAIN bash -s" < deploy/remote-deploy.sh
